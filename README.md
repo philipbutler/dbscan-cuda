@@ -1,3 +1,5 @@
+Currently a C++ implmentation of DBSCAN, soon will be a CUDA implementation of PDSDBSCAN
+
 # DBSCAN, Abstract algorithm
     DBSCAN clustering is very simple:
     - 2 points belong to the same cluster if their distance is less than `epsilon` (they're neighbors),
