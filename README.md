@@ -1,4 +1,4 @@
-Currently a C++ implmentation of DBSCAN, soon will be a CUDA implementation of PDSDBSCAN
+Currently a C++ implementation of DBSCAN, soon will be a CUDA implementation of PDSDBSCAN
 
 ## How to run (after setting up a CUDA machine)
 ```
