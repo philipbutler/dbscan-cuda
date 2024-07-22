@@ -20,5 +20,5 @@
     - running experiements, (different cluster sizes, dimensions, distance metrics, distributions, real world data) and including speed updates, and speed-of-light (SOL) analysis
     - creating animations for 2D and 3D cases, then using this to extrapolate to longer vectors
 
-    # Journal
-    7/22 - have to run to work at Whole Foods, F this
+# Journal
+7/22 - have to run to work at Whole Foods, F this
