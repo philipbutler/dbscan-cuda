@@ -1,6 +1,6 @@
 Currently a C++ implmentation of DBSCAN, soon will be a CUDA implementation of PDSDBSCAN
 
-How to run (after setting up a CUDA machine)
+## How to run (after setting up a CUDA machine)
 ```
 nvcc -o dbscan-serial dbscan.cu utilities.cu phil_math.cu
 ./dbscan-serial
