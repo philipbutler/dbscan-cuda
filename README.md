@@ -12,3 +12,13 @@
     In the future, clusters that share a border point could become the same cluster.
 
     This is my implementation of https://en.wikipedia.org/wiki/DBSCAN - "Original query-based algorithm"
+
+# PDSDBSCAN - Parallel Disjoint-Set DBSCAN
+    I plan on 
+    - implementing [PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) in CUDA C++, without any libraries as an exercise
+    - updating it using NVIDIA's recommended libraries such as [CCCL](https://github.com/NVIDIA/cccl) where possible
+    - running experiements, (different cluster sizes, dimensions, distance metrics, distributions, real world data) and including speed updates, and speed-of-light (SOL) analysis
+    - creating animations for 2D and 3D cases, then using this to extrapolate to longer vectors
+
+    # Journal
+    7/22 - have to run to work at Whole Foods, F this
