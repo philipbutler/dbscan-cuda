@@ -29,4 +29,4 @@ I plan on
 - creating animations for 2D and 3D cases, then using this to extrapolate to longer vectors
 
 # Journal
-7/22 - have to run to work at Whole Foods, F this
+7/22 - just getting this WIP up publically, have to run to work at Whole Foods, someone hire me please
