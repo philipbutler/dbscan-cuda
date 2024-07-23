@@ -36,4 +36,5 @@ This could be done with some additional condition (like the boarder point will g
 [[PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) description in my own words]
 
 # Journal
-7/22 - just getting this WIP up publically, have to run to work at Whole Foods, someone hire me please
+- 7/23 - Creating slides with the simplest example I can put together to illustrate DSDBSCAN, PDSDBSCAN-S, and PDSDBSCAN-D and corner cases, and I realized I need to write somewhere that, regarding determinism, there should definitely be an option how to handle it. After some thought, the default will be DBSCAN*, that is, sharde boarder point will be noise.
+- 7/22 - just getting this WIP up publically, have to run to work at Whole Foods, someone hire me please
