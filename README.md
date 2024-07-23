@@ -9,6 +9,15 @@ nvcc -o dbscan-serial dbscan.cu utilities.cu phil_math.cu
 ./dbscan-serial
 ```
 
+## To do
+- [ ] Finish PDSDBSCAN description in my own words
+- [ ] Finish PDSDBCAN CUDA implementation
+- [ ] Create animations for 2D and 3D cases, and use this as a vehicle to build intuition for others to extrapolate to longer vectors
+- [ ] Add some of those^ & figures to this README, the animations as gifs would be great
+- [ ] create visuals for how memory is used
+- [ ] create a version using NVIDIA's recommended [CCCL](https://github.com/NVIDIA/cccl) library where possible
+- [ ] run experiments, (different cluster sizes, dimensions, distance metrics, distributions, real world data - could start with data from PDSDBSCAN paper) and including speed updates, and speed-of-light (SOL) analysis. 
+
 # DBSCAN, Abstract algorithm
 DBSCAN clustering is very simple:
 - 2 points belong to the same cluster if their distance is less than `epsilon` (they're neighbors),
@@ -24,12 +33,7 @@ In a future version (the parallel version), there should be a deterministic opti
 This could be done with some additional condition (like the boarder point will go to the smaller cluster), or clusters that share a border point could become the same cluster.
 
 # PDSDBSCAN - Parallel Disjoint-Set DBSCAN
-I plan on 
-- implementing [PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) in CUDA C++, without any libraries as an exercise
-- adding visuals for current organization
-- updating it using NVIDIA's recommended libraries such as [CCCL](https://github.com/NVIDIA/cccl) where possible
-- running experiements, (different cluster sizes, dimensions, distance metrics, distributions, real world data) and including speed updates, and speed-of-light (SOL) analysis
-- creating animations for 2D and 3D cases, then using this to extrapolate to longer vectors
+[[PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) description in my own words]
 
 # Journal
 7/22 - just getting this WIP up publically, have to run to work at Whole Foods, someone hire me please
