@@ -1,4 +1,4 @@
-Currently a C++ implementation of DBSCAN, soon will be a CUDA implementation of PDSDBSCAN
+Currently this is a C++ implementation of [DBSCAN](https://en.wikipedia.org/wiki/DBSCAN), soon it will be a CUDA implementation of PDSDBSCAN.
 
 ## How to run (after setting up a CUDA machine)
 ```
@@ -11,15 +11,14 @@ DBSCAN clustering is very simple:
 - 2 points belong to the same cluster if their distance is less than `epsilon` (they're neighbors),
     and if one of them has at least `min_neighbors`. This point is a "core point"
 - If a point has no core points as neighbors, then it is "noise"
-- If a point has a neighboring core point, but less than "min_neighbors", it is an "edge point",
+- If a point has a neighboring core point, but less than "min_neighbors", it's called an "edge point" or "boarder point",
     meaning we don't consider its other neighbors as part of the cluster
 
 The distance metric can be anything we choose. Here we'll use Euclidean distance.
 
-For now, this will be non-deterministic.
-In the future, clusters that share a border point could become the same cluster.
-
-This is my implementation of https://en.wikipedia.org/wiki/DBSCAN - "Original query-based algorithm"
+For now, this version will be non-deterministic.
+In a future version (the parallel version), there should be a deterministic option.
+This could be done with some additional condition (like the boarder point will go to the smaller cluster), or clusters that share a border point could become the same cluster.
 
 # PDSDBSCAN - Parallel Disjoint-Set DBSCAN
 I plan on 
