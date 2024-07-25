@@ -2,6 +2,9 @@ Currently this is a C++ implementation of [DBSCAN](https://en.wikipedia.org/wiki
 
 ## How to compile & run (after setting up a machine for CUDA development)
 ```
+# Change to the directory, src
+cd src
+
 # Compile [dbscan.cu, utilities.cu, phil_math.cu] into the binary, dbscan-serial, using the CUDA compiler, nvcc.
 nvcc -o dbscan-serial dbscan.cu utilities.cu phil_math.cu
 
