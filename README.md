@@ -28,13 +28,16 @@ DBSCAN clustering is very simple:
 
 The distance metric can be anything we choose. Here we'll use Euclidean distance.
 
-For now, this version will be non-deterministic.
-In a future version (the parallel version), there should be a deterministic option.
-This could be done with some additional condition (like the boarder point will go to the smaller cluster), or clusters that share a border point could become the same cluster.
+For now, this serial version is non-deterministic.
+In the parallel version, there will be a dererministic option (by making border points noise), so I'll make the serial one determinitic too, so that the outputs can be compared.
 
 # PDSDBSCAN - Parallel Disjoint-Set DBSCAN
 [[PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) description in my own words]
 
 # Journal
+- 7/25 - Plan for today is to actually start writing the parallel verison's code because there's some nuances I'm trying to sort out while making these slides/diagrams. Firstly, I think I need to realize that I first need a baseline parallel implementation that starts with some assumptions.
+    - The first assumption is that all P points can fit in smem, and cannot fit in rmem.
+    - Also, since theres N cores working with their own copy of the data, I need to decide if P/N points needs to fit in smem, or if there can be coordination s. t. only few copies are needed to exist in smem (each copy private to each thread). The simplest approach is to first assume that P/N points can fit in smem.
+- 7/24 - Nothing today. Had the first solid workout I've done in a while, did literal housekeeping, then had to go to work.
 - 7/23 - Creating slides with the simplest example I can put together to illustrate DSDBSCAN, PDSDBSCAN-S, and PDSDBSCAN-D and corner cases, and I realized I need to write somewhere that, regarding determinism, there should definitely be an option how to handle it. After some thought, the default will be DBSCAN*, that is, sharde boarder point will be noise.
 - 7/22 - just getting this WIP up publically, have to run to work at Whole Foods, someone hire me please
