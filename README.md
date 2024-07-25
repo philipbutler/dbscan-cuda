@@ -1,10 +1,8 @@
 Currently this is a C++ implementation of [DBSCAN](https://en.wikipedia.org/wiki/DBSCAN), soon it will be a CUDA implementation of [PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492).
 
 ## How to compile & run (after setting up a machine for CUDA development)
+From the src directory,
 ```
-# Change to the directory, src
-cd src
-
 # Compile [dbscan.cu, utilities.cu, phil_math.cu] into the binary, dbscan-serial, using the CUDA compiler, nvcc.
 nvcc -o dbscan-serial dbscan.cu utilities.cu phil_math.cu
 
