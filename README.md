@@ -36,6 +36,7 @@ In the parallel version, there will be a dererministic option (by making border 
 [[PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) description in my own words]
 
 # Journal
+- 7/28 - Just centralizing my notes here. Reviewing my slides, I think I should do away with the coordinate plane once starting to illustrate how the parallel version workss
 - 7/25 - Plan for today is to actually start writing the parallel verison's code because there's some nuances I'm trying to sort out while making these slides/diagrams. Firstly, I think I need to realize that I first need a baseline parallel implementation that starts with some assumptions.
     - The first assumption is that all P points can fit in smem, and cannot fit in rmem.
     - Also, since theres N cores working with their own copy of the data, I need to decide if P/N points needs to fit in smem, or if there can be coordination s. t. only few copies are needed to exist in smem (each copy private to each thread). The simplest approach is to first assume that P/N points can fit in smem.
