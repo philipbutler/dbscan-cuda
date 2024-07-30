@@ -6,6 +6,7 @@
 #include "phil_math.h"
 #include "utilities.h"
 
+__host__ __device__
 void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output_cluster_IDs, std::queue<int> &neighbors) {
     for (int point_B = 0; point_B < N; point_B++) {
             if (point_A == point_B) continue;
@@ -14,6 +15,17 @@ void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output
                 neighbors.push(point_B);
             }
         }
+    return;
+}
+
+__global__
+void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_length, int N, int* cluster_IDs) {
+
+    int i = threadIdx.x + blockDim.x * blockIdx.x;
+
+    if (i < N)
+        cluster_IDs[i] = i + 3;
+
     return;
 }
 
@@ -75,10 +87,11 @@ void dbscan_serial(int min_neighbors, float epsilon, int* vectors, int vector_le
 
 int main() {
 
-    // `N` vectors with `vector_length` components
+    // `N` vectors with `vector_length` components, totaling `vectors_size` bytes
     int N = 32;
     int vector_length = 3;
-    int vectors[N * vector_length];
+    size_t vectors_size = sizeof(int) * N * vector_length;
+    int vectors[vectors_size];
 
     // DBSCAN parameters
     int min_neighbors = 3;
@@ -102,7 +115,11 @@ int main() {
     // noise        -> -1
     // cluster      ->  0+
     int output_cluster_IDs[N];
+    size_t cluster_IDs_size = N * sizeof(int);
     std::fill_n(output_cluster_IDs, N, -2); // fill array with -2
+
+    /*
+    // Serial code
 
     std::cout << "Cluster IDs:\n";
     show_numbered(output_cluster_IDs, N);
@@ -111,8 +128,28 @@ int main() {
 
     std::cout << "Cluster IDs:\n";
     show_numbered(output_cluster_IDs, N);
+    */
 
-    //add<<<32, 1024>>>(vector_a, vector_b, vector_c, length);
-    //cudaDeviceSynchronize();
+    // Allocate memory on the device
+    int* d_vectors;
+    int* d_cluster_IDs;
+    cudaMalloc(&d_vectors, sizeof(vectors));
+    cudaMalloc(&d_cluster_IDs, cluster_IDs_size);
+
+    // Copy from host memory to device memory
+    //cudaMemcpy(d_vectors, vectors, vectors_size, cudaMemcpyHostToDevice);
+
+    // Invoke kernel
+    dbscan_kernel<<<1, 256>>>(min_neighbors, epsilon, d_vectors, vector_length, N, d_cluster_IDs);
+    cudaDeviceSynchronize();
+
+    // Copy result from device memory to host memory
+    cudaMemcpy(output_cluster_IDs, d_cluster_IDs, cluster_IDs_size, cudaMemcpyDeviceToHost);
+
+    // Free device memory
+    cudaFree(d_vectors);
+    cudaFree(d_cluster_IDs);
+
+    show_numbered(output_cluster_IDs, N);
     return 0;
 }
