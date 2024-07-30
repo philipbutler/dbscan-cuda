@@ -36,6 +36,8 @@ In the parallel version, there will be a dererministic option (by making border 
 [[PDSDBSCAN](https://ieeexplore.ieee.org/document/6468492) description in my own words]
 
 # Journal
+- 7/30 - Writing the code as I make the diagrams so I can validate each. I'm realizing I need to do more manually regarding device memory management. I'm using [this](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory) from the CUDA programming guide as my primary resource. I've just "staged" the kernel by having the kernel threads write to device global memory, and copy it back to host memory, without using the `__managed__` keyword or any other magic that I'm certain exists.
+    - omg i can't use `std::queue` from a `__device__` function so now I'm implementing a queue. good cpp learning opportunity lol
 - 7/28 - Just centralizing my notes here. Reviewing my slides, I think I should do away with the coordinate plane once starting to illustrate how the parallel version workss
 - 7/25 - Plan for today is to actually start writing the parallel verison's code because there's some nuances I'm trying to sort out while making these slides/diagrams. Firstly, I think I need to realize that I first need a baseline parallel implementation that starts with some assumptions.
     - The first assumption is that all P points can fit in smem, and cannot fit in rmem.
