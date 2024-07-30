@@ -38,6 +38,13 @@ In the parallel version, there will be a dererministic option (by making border 
 # Journal
 - 7/30 - Writing the code as I make the diagrams so I can validate each. I'm realizing I need to do more manually regarding device memory management. I'm using [this](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory) from the CUDA programming guide as my primary resource. I've just "staged" the kernel by having the kernel threads write to device global memory, and copy it back to host memory, without using the `__managed__` keyword or any other magic that I'm certain exists.
     - omg i can't use `std::queue` from a `__device__` function so now I'm implementing a queue. good cpp learning opportunity lol
+    - cuda is hard😂 this is kinda hard even before cuda. idk if I'm tired or confusing myself, but I'm not sure why I used the same queue in the serial version when processing neighbors of neighbors. I have to wrap this up for the day, but I hate leaving it in such an inconsistent state.
+    - To save the context on my mind, I need to:
+    - [ ] Test my CircularQueue implementation, (and change the name to that), unless I come across something better to use
+    - [ ] See if I can separate the `neighbors` queues, meaning after finding the neighbors of point A, making a new queue for each neighbor
+    - [ ] Would be nice if there was 1 implementation, but currently I separated the host and device `find_neighbors()` implementations to support my queue for the device
+    - [ ] obviously finish the kernel
+    - [ ] in the future, write code to be more extensible (more vectors, more components, flexible to use on different devices, etc)
 - 7/28 - Just centralizing my notes here. Reviewing my slides, I think I should do away with the coordinate plane once starting to illustrate how the parallel version workss
 - 7/25 - Plan for today is to actually start writing the parallel verison's code because there's some nuances I'm trying to sort out while making these slides/diagrams. Firstly, I think I need to realize that I first need a baseline parallel implementation that starts with some assumptions.
     - The first assumption is that all P points can fit in smem, and cannot fit in rmem.
