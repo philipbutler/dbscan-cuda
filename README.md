@@ -41,7 +41,6 @@ In the parallel version, there will be a dererministic option (by making border 
     - cuda is hard😂 this is kinda hard even before cuda. idk if I'm tired or confusing myself, but I'm not sure why I used the same queue in the serial version when processing neighbors of neighbors. I have to wrap this up for the day, but I hate leaving it in such an inconsistent state.
     - To save the context on my mind, I need to:
     - [ ] Test my CircularQueue implementation, (and change the name to that), unless I come across something better to use
-    - [ ] See if I can separate the `neighbors` queues, meaning after finding the neighbors of point A, making a new queue for each neighbor
     - [ ] Would be nice if there was 1 implementation, but currently I separated the host and device `find_neighbors()` implementations to support my queue for the device
     - [ ] obviously finish the kernel
     - [ ] in the future, write code to be more extensible (more vectors, more components, flexible to use on different devices, etc)
