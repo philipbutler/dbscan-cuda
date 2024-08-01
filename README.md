@@ -4,10 +4,10 @@ Currently this is a C++ implementation of [DBSCAN](https://en.wikipedia.org/wiki
 From the src directory,
 ```
 # Compile [dbscan.cu, utilities.cu, phil_math.cu] into the binary, dbscan-serial, using the CUDA compiler, nvcc.
-nvcc -o dbscan-serial dbscan.cu utilities.cu phil_math.cu
+nvcc -o dbscan dbscan.cu utilities.cu
 
 # Run the executable
-./dbscan-serial
+./dbscan
 ```
 
 ## To do
