@@ -46,8 +46,12 @@ void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output
 // but I'm just following PMPP for now.
 #define VECS_SIZE 96    // 32 vectors * 3 components
 
+
+/*
+    @param test_output This is used to send data from device to host for inspection.
+*/
 __global__
-void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_length, int N, int* d_roots, int* n1) {
+void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_length, int N, int* d_roots, int* test_output) {
     __shared__ int shared_vectors[VECS_SIZE];
 
     // This is the collection of "pointers" - root[i] is the root node of i
@@ -105,9 +109,9 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
                 }
             } 
 
-            // test, delete
+            // Send to host memory for inspection
             for (int q = 0; q < 32; q++) {
-                n1[q] = nneighbors[q];
+                test_output[q] = nneighbors[q];
             }
             break;
 
@@ -119,9 +123,6 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
                 }
             }
         }
-        
-        
-        
     }
 
     if (i < N)
@@ -239,32 +240,32 @@ int main() {
     // Copy from host memory to device memory
     cudaMemcpy(d_vectors, vectors, vectors_size, cudaMemcpyHostToDevice);
 
-    // test - remove
-    int* h_n1 = (int*) malloc(32 * sizeof(int));
-    int* d_n1;
-    cudaMalloc(&d_n1, 32 * sizeof(int));
+    // Start Test (A) - Meaning relevant snippets are (A)
+    int* host_new_neighbors = (int*) malloc(32 * sizeof(int));
+    int* device_new_neighbors;
+    cudaMalloc(&device_new_neighbors, 32 * sizeof(int));
+    // End Test (A)
 
     // Invoke kernel
-    // test todo: remove n1
-    dbscan_kernel<<<1, 1>>>(min_neighbors, epsilon, d_vectors, vector_length, N, d_cluster_IDs, d_n1);
+    dbscan_kernel<<<1, 1>>>(min_neighbors, epsilon, d_vectors, vector_length, N, d_cluster_IDs, device_new_neighbors);
     cudaDeviceSynchronize();
 
     // Copy result from device memory to host memory
     cudaMemcpy(output_cluster_IDs, d_cluster_IDs, cluster_IDs_size, cudaMemcpyDeviceToHost);
 
-    // test, delete
-    cudaMemcpy(h_n1, d_n1, 32 * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaFree(d_n1);
+    // Start Test (A) - load first neighbors queue
+    cudaMemcpy(host_new_neighbors, device_new_neighbors, 32 * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaFree(device_new_neighbors);
     std::cout << "first neighbors:\n";
-    show_numbered(h_n1, 32);
+    show_numbered(host_new_neighbors, 32);
+    // End Test
 
-    // For testing, load smem vectors (through gmem) into a new array
+    // Start Test (B) - load smem vectors (through gmem) into a new array
     int test_vectors[vectors_size];
     cudaMemcpy(test_vectors, d_vectors, vectors_size, cudaMemcpyDeviceToHost);
     std::cout << "Test Vectors (sent to GPU & back):\n";
     show(test_vectors, vector_length, N);
-
-    /* For testing, load first neighbors queue*/
+    // End Test
 
     // Free device memory
     cudaFree(d_vectors);
