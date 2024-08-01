@@ -6,27 +6,6 @@
 //#include "phil_math.h"
 #include "utilities.h"
 
-/* `euclidean_distance_3D` uses the `ed_3D` helper function just for readability.
-    Could later compare to something like a 2D array or something else.
-    
-    Originally I had/have these in a header file, but based on [this](https://developer.nvidia.com/blog/separate-compilation-linking-cuda-device-code/#caveats)
-    tells us that we can use the `-dc` flag, but potentially as a performance cost.
-    This could be investigated later too.
-*/
-__host__ __device__ float ed_3D(int p1_x, int p1_y, int p1_z, int p2_x, int p2_y, int p2_z) {
-    return sqrtf((p1_x - p2_x) * (p1_x - p2_x) +                        // I believe faster than pow(x, 2)
-                     (p1_y - p2_y) * (p1_y - p2_y) +
-                     (p1_z - p2_z) * (p1_z - p2_z));
-}
-
-// See `ed_3D`
-__host__ __device__ float euclidean_distance_3D(int p1, int p2, int* vectors) {
-    float val = ed_3D(vectors[p1 * 3], vectors[p1 * 3 + 1], vectors[p1 * 3 + 2],
-                      vectors[p2 * 3], vectors[p2 * 3 + 1], vectors[p2 * 3 + 2]);
-    //std::cout << "distance(" << p1 << ", " << p2 << "): " << val << "\n";
-    return val;
-}
-
 __host__ __device__ float euclidean_distance(int p1, int p2, int dim, int* vectors) {
     float acc = 0;
     for (int d = 0; d < dim; d++)
@@ -40,7 +19,7 @@ void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output
     for (int point_B = 0; point_B < N; point_B++) {
             if (point_A == point_B) continue;
             if (output_cluster_IDs[point_B] != -2) continue;   // previously processed
-            if (euclidean_distance_3D(point_A, point_B, vectors) < epsilon) {   // same cluster
+            if (euclidean_distance(point_A, point_B, 3, vectors) < epsilon) {   // same cluster
                 neighbors.push(point_B);
             }
         }
@@ -98,7 +77,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
         for (int point_B = 0; point_B < N; point_B++) {
             if (point_A == point_B) continue;
             if (roots[point_B] != point_B) continue;   // previously processed (starts as self)
-            if (euclidean_distance_3D(point_A, point_B, vectors) < epsilon) {   // same cluster
+            if (euclidean_distance(point_A, point_B, 3, vectors) < epsilon) {   // same cluster
                 neighbors[n_end] = point_B;
                 n_size++;
                 n_end++;
@@ -119,7 +98,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
             for (int point_B = 0; point_B < N; point_B++) {
                 if (neighbor == point_B) continue;
                 if (roots[point_B] != point_B) continue;   // previously processed (starts as self)
-                if (euclidean_distance_3D(neighbor, point_B, vectors) < epsilon) {   // same cluster
+                if (euclidean_distance(neighbor, point_B, 3, vectors) < epsilon) {   // same cluster
                     nneighbors[n_end] = point_B;
                     nn_size++;
                     nn_end++;
