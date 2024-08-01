@@ -22,9 +22,17 @@ __host__ __device__ float ed_3D(int p1_x, int p1_y, int p1_z, int p2_x, int p2_y
 // See `ed_3D`
 __host__ __device__ float euclidean_distance_3D(int p1, int p2, int* vectors) {
     float val = ed_3D(vectors[p1 * 3], vectors[p1 * 3 + 1], vectors[p1 * 3 + 2],
-                      vectors[p2 * 3], vectors[p2 * 3 + 1], vectors[p2 * 3 + 1]);
+                      vectors[p2 * 3], vectors[p2 * 3 + 1], vectors[p2 * 3 + 2]);
     //std::cout << "distance(" << p1 << ", " << p2 << "): " << val << "\n";
     return val;
+}
+
+__host__ __device__ float euclidean_distance(int p1, int p2, int dim, int* vectors) {
+    float acc = 0;
+    for (int d = 0; d < dim; d++)
+        acc += (vectors[p1 * 3 + d] - vectors[p2 * 3 + d]) * (vectors[p1 * 3 + d] - vectors[p2 * 3 + d]);
+
+    return sqrtf(acc);
 }
 
 __host__
