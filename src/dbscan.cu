@@ -3,7 +3,6 @@
 #include <cmath>
 #include <queue>
 
-//#include "phil_math.h"
 #include "utilities.h"
 
 __host__ __device__ float euclidean_distance(int p1, int p2, int dim, int* vectors) {
