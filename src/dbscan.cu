@@ -26,26 +26,9 @@ void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output
     return;
 }
 
-/*
-__device__
-void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output_cluster_IDs, int* neighbors, int* end, int* a_size) {
-    for (int point_B = 0; point_B < N; point_B++) {
-            if (point_A == point_B) continue;
-            if (output_cluster_IDs[point_B] != -2) continue;   // previously processed
-            if (euclidean_distance_3D(point_A, point_B, vectors) < epsilon) {   // same cluster
-                neighbors[*end] = point_B;
-                *a_size++;
-                *end++;
-            }
-        }
-    return;
-}
-*/
-
 // For use by `dbscan_kernel()`. I'm unsure why we'd want to use #define instead of passing `TILE_WIDTH` as a fuction argument,
 // but I'm just following PMPP for now.
 #define VECS_SIZE 96    // 32 vectors * 3 components
-
 
 /*
     @param test_output This is used to send data from device to host for inspection.
