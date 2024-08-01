@@ -6,48 +6,6 @@
 //#include "phil_math.h"
 #include "utilities.h"
 
-/* CircularQueue is a circular buffer, acts as a queue.
-
-Assumes you only ever need `aCapacity` elements, can't store more.
-
-This isn't working, and idk why, so I'm implementing it right in the kernel.
-
-class CircularQueue {
-    public:
-        int * buffer;
-        int start = 0;
-        int end = 0;
-        int capacity;
-        int size = 0;
-
-        __device__ CircularQueue(int aCapacity) {
-            buffer = (int*) malloc(capacity * sizeof(int));
-            capacity = aCapacity;
-        }
-
-        // Add an element to the next open space
-        __device__ void push(int x) {
-            buffer[(start + end) % capacity] = x;
-            size++;
-            end++;
-            return;
-        }
-
-        // Return & remove the next element
-        __device__ int pop() {
-            int val = buffer[start];
-            size--;
-            start++;
-            return val;
-        }
-
-        // Returns whether its empty
-        __device__ bool isEmpty() {
-            return (size == 0);
-        }
-};
-*/
-
 /* `euclidean_distance_3D` uses the `ed_3D` helper function just for readability.
     Could later compare to something like a 2D array or something else.
     
