@@ -97,11 +97,25 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
             }
             break;
 
+            // Removing this break will cause things to go haywire,
+            // like even when sending the vectors to the GPU and back,
+            // under the output "Test Vectors..." they're completely changed,
+            // and even have negative numbers.
+
             if (nn_size >= min_neighbors) {                 // `neighbor` is a core point,
                 while (nn_size > 0) {                       // so we can expand its neighbors
                     neighbors[n_end] = nneighbors[nn_start];
-                    n_size++;   // n push
-                    nn_start++; // nn pop
+                    n_size++;   // neighbors push
+                    if (n_size > 32){
+                        // something's wrong, a visited point shouldn't be able to be added,
+                        // so it should never exceed 32, and start and end will never pass each other,
+                        // and idk the best way to throw an error or print something in cuda
+                    }
+                    n_end++;
+                    if (n_end == 32) {
+                        n_end = 0;
+                    }
+                    nn_start++; // new neighbors pop
                 }
             }
         }
@@ -203,7 +217,7 @@ int main() {
     size_t cluster_IDs_size = N * sizeof(int);
     std::fill_n(output_cluster_IDs, N, -2); // fill array with -2
 
-    /* // Serial code
+    // Serial code
 
     std::cout << "Cluster IDs:\n";
     show_numbered(output_cluster_IDs, N);
@@ -211,35 +225,42 @@ int main() {
     dbscan_serial(min_neighbors, epsilon, vectors, vector_length, N, output_cluster_IDs);
 
     std::cout << "Cluster IDs:\n";
-    show_numbered(output_cluster_IDs, N);*/
+    show_numbered(output_cluster_IDs, N);
+
+    // CUDA MODE
+
+    // Allocate memory on host
+    // Note `roots` will sort of serve as cluster IDs
+    int h_roots[N];
+    size_t roots_size = N * sizeof(int);
 
     // Allocate memory on the device
     int* d_vectors;
-    int* d_cluster_IDs;
+    int* d_roots;
     cudaMalloc(&d_vectors, sizeof(vectors));
-    cudaMalloc(&d_cluster_IDs, cluster_IDs_size);
+    cudaMalloc(&d_roots, cluster_IDs_size);
 
     // Copy from host memory to device memory
     cudaMemcpy(d_vectors, vectors, vectors_size, cudaMemcpyHostToDevice);
 
     // Start Test (A) - Meaning relevant snippets are (A)
-    int* host_new_neighbors = (int*) malloc(32 * sizeof(int));
-    int* device_new_neighbors;
-    cudaMalloc(&device_new_neighbors, 32 * sizeof(int));
+    int* host_test_ouput = (int*) malloc(32 * sizeof(int));
+    int* device_test_output;
+    cudaMalloc(&device_test_output, 32 * sizeof(int));
     // End Test (A)
 
     // Invoke kernel
-    dbscan_kernel<<<1, 1>>>(min_neighbors, epsilon, d_vectors, vector_length, N, d_cluster_IDs, device_new_neighbors);
+    dbscan_kernel<<<1, 1>>>(min_neighbors, epsilon, d_vectors, vector_length, N, d_roots, device_test_output);
     cudaDeviceSynchronize();
 
     // Copy result from device memory to host memory
-    cudaMemcpy(output_cluster_IDs, d_cluster_IDs, cluster_IDs_size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_roots, d_roots, roots_size, cudaMemcpyDeviceToHost);
 
     // Start Test (A) - load first neighbors queue
-    cudaMemcpy(host_new_neighbors, device_new_neighbors, 32 * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaFree(device_new_neighbors);
-    std::cout << "first neighbors:\n";
-    show_numbered(host_new_neighbors, 32);
+    cudaMemcpy(host_test_ouput, device_test_output, 32 * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaFree(device_test_output);
+    std::cout << "Test Device Output:\n";
+    show_numbered(host_test_ouput, 32);
     // End Test
 
     // Start Test (B) - load smem vectors (through gmem) into a new array
@@ -251,9 +272,9 @@ int main() {
 
     // Free device memory
     cudaFree(d_vectors);
-    cudaFree(d_cluster_IDs);
+    cudaFree(d_roots);
 
-    std::cout << "Clusters:\n";
-    show_numbered(output_cluster_IDs, N);
+    std::cout << "Roots:\n";
+    show_numbered(h_roots, N);
     return 0;
 }
