@@ -8,7 +8,7 @@
 __host__ __device__ float euclidean_distance(int p1, int p2, int dim, int* vectors) {
     float acc = 0;
     for (int d = 0; d < dim; d++)
-        acc += (vectors[p1 * 3 + d] - vectors[p2 * 3 + d]) * (vectors[p1 * 3 + d] - vectors[p2 * 3 + d]);
+        acc += (vectors[p1 * d + d] - vectors[p2 * d + d]) * (vectors[p1 * d + d] - vectors[p2 * d + d]);
 
     return sqrtf(acc);
 }
