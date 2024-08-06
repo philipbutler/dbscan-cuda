@@ -241,9 +241,9 @@ int main() {
     cudaMemcpy(d_vectors, vectors, vectors_size, cudaMemcpyHostToDevice);
 
     // Start Test (A) - Meaning relevant snippets are (A)
-    int* host_test_ouput = (int*) malloc(32 * sizeof(int));
+    int* host_test_ouput = (int*) malloc(N * sizeof(int));
     int* device_test_output;
-    cudaMalloc(&device_test_output, 32 * sizeof(int));
+    cudaMalloc(&device_test_output, N * sizeof(int));
     // End Test (A)
 
     // Invoke kernel
@@ -254,10 +254,10 @@ int main() {
     cudaMemcpy(h_roots, d_roots, roots_size, cudaMemcpyDeviceToHost);
 
     // Start Test (A) - load first neighbors queue
-    cudaMemcpy(host_test_ouput, device_test_output, 32 * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(host_test_ouput, device_test_output, N * sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(device_test_output);
     std::cout << "Test Device Output:\n";
-    show_numbered(host_test_ouput, 32);
+    show_numbered(host_test_ouput, N);
     // End Test
 
     // Start Test (B) - load smem vectors (through gmem) into a new array
