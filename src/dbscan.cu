@@ -17,10 +17,8 @@ __host__
 void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output_cluster_IDs, std::queue<int> &neighbors) {
     for (int point_B = 0; point_B < N; point_B++) {
             if (point_A == point_B) continue;
-            if (output_cluster_IDs[point_B] != -2) continue;   // previously processed
-            if (euclidean_distance(point_A, point_B, 3, vectors) < epsilon) {   // same cluster
-                neighbors.push(point_B);
-            }
+            if (output_cluster_IDs[point_B] != -2) continue;                                           // previously processed
+            if (euclidean_distance(point_A, point_B, 3, vectors) < epsilon) neighbors.push(point_B);   // same cluster
         }
     return;
 }
@@ -33,25 +31,24 @@ void find_neighbors(int point_A, int* vectors, int N, float epsilon, int* output
     @param test_output This is used to send data from device to host for inspection.
 */
 __global__
-void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_length, int N, int* d_roots, int* test_output) {
+void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vector_length, int n, int* d_roots, int* test_output) {
     __shared__ int shared_vectors[VECS_SIZE];
 
     // This is the collection of "pointers" - root[i] is the root node of i
-    int roots[32];
-    for (int q = 0; q < 32; q++) {
+    int roots[n];
+    for (int q = 0; q < n; q++)
         roots[q] = q;
-    }
-
+    
     int i = threadIdx.x + blockDim.x * blockIdx.x;
 
     // Collaborative loading of vectors into smem
-    for (int a = 0; a < 3; a++) {
+    for (int a = 0; a < vector_length; a++) 
         shared_vectors[i * vector_length + a] = vectors[i * vector_length + a];
-    }
+    
     __syncthreads();
 
     // Each thread will be responsible for `thread_range` = N / num_threads outputs in `roots`
-    int thread_range = N / blockDim.x;
+    int thread_range = n / blockDim.x;
     for (int a = 0; a < thread_range; a++) {
 
         // Queue
@@ -60,7 +57,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
         int point_A = i * thread_range + a; // The ith thread will process `thread_range` consecutive vectors
         
         // Find neighbors
-        for (int point_B = 0; point_B < N; point_B++) {
+        for (int point_B = 0; point_B < n; point_B++) {
             if (point_A == point_B) continue;
             if (roots[point_B] != point_B) continue;   // previously processed (starts as self)
             if (euclidean_distance(point_A, point_B, 3, vectors) < epsilon) {   // same cluster
@@ -81,7 +78,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
             int nneighbors[32]; int nn_start = 0; int nn_end = 0; int nn_size = 0;
             
             // Find neighbors
-            for (int point_B = 0; point_B < N; point_B++) {
+            for (int point_B = 0; point_B < n; point_B++) {
                 if (neighbor == point_B) continue;
                 if (roots[point_B] != point_B) continue;   // previously processed (starts as self)
                 if (euclidean_distance(neighbor, point_B, 3, vectors) < epsilon) {   // same cluster
@@ -92,9 +89,9 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
             } 
 
             // Send to host memory for inspection
-            for (int q = 0; q < 32; q++) {
+            for (int q = 0; q < 32; q++) 
                 test_output[q] = nneighbors[q];
-            }
+            
             break;
 
             // Removing this break will cause things to go haywire,
@@ -112,16 +109,15 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, int vector_le
                         // and idk the best way to throw an error or print something in cuda
                     }
                     n_end++;
-                    if (n_end == 32) {
+                    if (n_end == 32)
                         n_end = 0;
-                    }
                     nn_start++; // new neighbors pop
                 }
             }
         }
     }
 
-    if (i < N)
+    if (i < n) 
         roots[i] = i + 3;
 
     return;
@@ -139,7 +135,8 @@ void dbscan_serial(int min_neighbors, float epsilon, int* vectors, int vector_le
     int current_cluster_ID = 0;
     for (int point_A = 0; point_A < N; point_A++) {
 
-        if (output_cluster_IDs[point_A] != -2) continue;    // previously processed
+        if (output_cluster_IDs[point_A] != -2) // previously processed
+            continue;    
 
         std::queue<int> neighbors;
 
