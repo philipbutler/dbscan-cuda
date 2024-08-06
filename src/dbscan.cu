@@ -52,7 +52,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vec
     for (int a = 0; a < thread_range; a++) {
 
         // Queue
-        int neighbors[32]; int n_start = 0; int n_end = 0; int n_size = 0;
+        int neighbors[n]; int n_start = 0; int n_end = 0; int n_size = 0;
 
         int point_A = i * thread_range + a; // The ith thread will process `thread_range` consecutive vectors
         
@@ -60,7 +60,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vec
         for (int point_B = 0; point_B < n; point_B++) {
             if (point_A == point_B) continue;
             if (roots[point_B] != point_B) continue;   // previously processed (starts as self)
-            if (euclidean_distance(point_A, point_B, 3, vectors) < epsilon) {   // same cluster
+            if (euclidean_distance(point_A, point_B, vector_length, vectors) < epsilon) {   // same cluster
                 neighbors[n_end] = point_B;
                 n_size++;
                 n_end++;
@@ -75,13 +75,13 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vec
             roots[neighbor] = point_A;                  // label point A as its root
 
             // Queue neighbors of neighbors
-            int nneighbors[32]; int nn_start = 0; int nn_end = 0; int nn_size = 0;
+            int nneighbors[n]; int nn_start = 0; int nn_end = 0; int nn_size = 0;
             
             // Find neighbors
             for (int point_B = 0; point_B < n; point_B++) {
                 if (neighbor == point_B) continue;
                 if (roots[point_B] != point_B) continue;   // previously processed (starts as self)
-                if (euclidean_distance(neighbor, point_B, 3, vectors) < epsilon) {   // same cluster
+                if (euclidean_distance(neighbor, point_B, vector_length, vectors) < epsilon) {   // same cluster
                     nneighbors[n_end] = point_B;
                     nn_size++;
                     nn_end++;
@@ -89,7 +89,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vec
             } 
 
             // Send to host memory for inspection
-            for (int q = 0; q < 32; q++) 
+            for (int q = 0; q < n; q++) 
                 test_output[q] = nneighbors[q];
             
             break;
@@ -103,13 +103,13 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vec
                 while (nn_size > 0) {                       // so we can expand its neighbors
                     neighbors[n_end] = nneighbors[nn_start];
                     n_size++;   // neighbors push
-                    if (n_size > 32){
+                    if (n_size > n){
                         // something's wrong, a visited point shouldn't be able to be added,
                         // so it should never exceed 32, and start and end will never pass each other,
                         // and idk the best way to throw an error or print something in cuda
                     }
                     n_end++;
-                    if (n_end == 32)
+                    if (n_end == n)
                         n_end = 0;
                     nn_start++; // new neighbors pop
                 }
@@ -118,7 +118,7 @@ void dbscan_kernel(int min_neighbors, float epsilon, int* vectors, const int vec
     }
 
     if (i < n) 
-        roots[i] = i + 3;
+        roots[i] = i + 3;  // just some change to make sure we're modifying them
 
     return;
 }
@@ -198,7 +198,7 @@ int main() {
     srand(1);                       // set seed
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < vector_length; j++) {
-            vectors[i * 3 + j] = rand() % upper_bound;
+            vectors[i * vector_length + j] = rand() % upper_bound;
         }
     }
 
